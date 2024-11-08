@@ -64,6 +64,20 @@ void inorderTraversal(struct node* root) {
         while (current != NULL) {
             push(&stack, current);
             current = current->l;
+            
+            //:::IMP:::
+            //Note that when we reach the left-lower-most node,
+            //So current is null so far..
+            //We then pop it, move the right subtree, and go down
+            //to the left-lower-most node
+            //If the current node is right, then the result of
+            //current= current->r; will be null
+            //HOWEVER, HERE IS THE TRICK
+            
+            //Outer while loop won't stop cuz the STACK is NOT EMPTY YET
+            //So we'll go up one node, use the inner while loop
+            //to check for a left path again..
+            //And on and on...
         }
 
         // Current must be NULL at this point, so we pop the top item from stack
@@ -90,7 +104,7 @@ int main() {
     root->r->r->r->r = createNode('E');
     root->r->r->r->r->l = createNode('E');
     
-
+    //OUTPUT==> ASAMPLETREE
     printf("In-order traversal of the tree:\n");
     inorderTraversal(root);
     printf("\n");
