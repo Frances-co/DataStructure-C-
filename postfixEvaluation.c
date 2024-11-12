@@ -2,6 +2,11 @@
 //----
 //Comments in this code are mostly some study shit and thigns I didn't know abt
 //----
+//Since clean version isn't actually clean, I'll create a better 1 with its own repository, readme file, &
+//instructions function...
+//----
+
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -159,6 +164,10 @@ double substringToDouble(char *start, char *end) {
     return strtod(temp, NULL);
 }
 
+
+
+
+
 //Clean Version:
 #include <stdio.h>
 #include <stdlib.h>
@@ -167,16 +176,17 @@ double substringToDouble(char *start, char *end) {
 
 //stack nodes:
 typedef struct node{
-    int num;
+    double num;
     struct node* next;
 } stackNode;
 
 //forward declarations:
 double substringToDouble(char *start, char *end);
 double doOperation(char operatorr, double operand1, double operand2);
-stackNode* push(int x, stackNode** top);
-double pop(stackNode* top);
+stackNode* push(double x, stackNode** top);
+double pop(stackNode** top);
 int isOperator(char x);
+
 
 
 int main() {
@@ -184,53 +194,78 @@ int main() {
     scanf("%d", &expressionSize);
     char expression[(expressionSize+1)*2]; //+1 for the '\0'
 
+    fflush(stdin); //consuming the newLine I entered when entered the expressionSize...
+    scanf("%[^\n]", expression); //scanf will read all space-like characters normally and stop reading once it encounters a \n character.
+
+    //DEBUGGING!!
+    //printf("%s\n", expression);
+    //DEBUGGING!!
+
     int spaceIndex= -1;
-
-    scanf("%s", &expression);
-
     stackNode* top=NULL;
-    double result;
+    double result=0;
+    double operand2;
+    double operand1;
 
     for(int i=0; expression[i]!='\0'; i++){
+        //printf("%d\t", i);
         switch(expression[i]){
             case '+':
             case '-':
             case '/':
             case '*':
-                double operand2= pop(top);
-                double operand1= pop(top);
+
+                //printf("%d -- %d", top->num, top->next->num);
+                operand2= pop(&top);
+                operand1= pop(&top);
+                //printf("\n\n\n\n%f  %f", operand1, operand2);
                 result= doOperation(expression[i], operand1, operand2);
-                printf("%f\n", result);
+
+                //DEBUGGING!!
+                //printf("%f -- %f -- %f\n", operand1, operand2, result);
+                //printf("%f\n", result);
+                //DEBUGGING!!
                 push(result, &top);
-                if(isOperator(expression[i+2])){
-                    i=i+1;//we add 1, and the loop will add 1 at its end, so we end up in i+2 which is the operator, skipping a useless space.
+                //printf("%f", top->num);
+
+
+                //if(isOperator(expression[i+2])){
+                //    i=i+1;//we add 1, and the loop will add 1 at its end, so we end up in i+2 which is the operator, skipping a useless space.
                           //the problem is we need this space calculation shit cuz our logic is based on it.
-                }
-                else
-                    spaceIndex=i+1;
+                //}
+                //else{
+                //    spaceIndex=i+1;
+                //    i+=1;
+                //}
+
+                i++;
+                spaceIndex= i;
+                break;
 
                 //Note that this program expect a space between each number and operator, between each independent unit.
                 //Ex:9 3 4 * 8 + 4 / -
                 //So if we find, say *, then we set spaceIndex to i+1
 
             default:
+                //printf("%d -- %c --%f\n**\n", i, expression[i],result);
+                //printf("###%d###%d\n", i, spaceIndex);
                 if(expression[i]==' '){
 
                     if(spaceIndex== -1){
-                        top= push(substringToDouble(&expression[0], &expression[i-1]), &top);
-                        spaceIndex=i;
+                        top= push(substringToDouble(&expression[0], &expression[i]), &top);
                     }
                     else{
-                        top= push(substringToDouble(&expression[spaceIndex+1], &expression[i-1]), &top);
-                        spaceIndex= i;
+                        top= push(substringToDouble(&expression[spaceIndex+1], &expression[i]), &top);
                     }
+                    spaceIndex=i;
 
                 }
 
 
         }
+        //if(i==8)printf("%d", i);
     }
-    printf("%d", result);
+    printf("%f", result);
 
     return 0;
 }
@@ -248,10 +283,11 @@ double doOperation(char operatorr, double operand1, double operand2){
 
         case '/':
             return operand1 / operand2;
+
     }
 }
 
-stackNode* push(int x, stackNode** top){
+stackNode* push(double x, stackNode** top){
     if(*top==NULL){
         *top= (stackNode* )malloc(sizeof(stackNode));
         (*top)->num= x;
@@ -267,9 +303,24 @@ stackNode* push(int x, stackNode** top){
     }
 }
 
-double pop(stackNode* top){
-    int popMe= top->num;
-    free(top);
+//double pop(stackNode* top){
+//  double popMe= top->num;
+//    stackNode* temp=top;
+//    top=top->next;
+//    free(temp);
+//    return popMe;
+//}
+//The implementation above is wrong cuz we want to change the pointer itself while passing itself..
+//So it won't work,
+//If you wanna change the pointer itself, pass it by reference; pass its pointer.
+//Don't ever foreget it AGAIN!!!!!!!
+
+//So the right implementation is:
+double pop(stackNode** top){
+  double popMe= (*top)->num;
+    stackNode* temp= (*top);
+    (*top)= (*top)->next;
+    free(temp);
     return popMe;
 }
 
@@ -293,6 +344,7 @@ int isOperator(char x){
 
 
 //testcase:9 3 4 * 8 + 4 / -
+
 
 
 
