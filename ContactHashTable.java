@@ -55,7 +55,7 @@ public class ContactHashTable {
                 table[index]= new Contact(name, phoneNumber);
                 break;
             }
-            else if (table[index].name == name){
+            else if (table[index].name.equals(name)){
                 System.out.println("A contact with this name already exists!");
                 break;
             }
@@ -74,24 +74,20 @@ public class ContactHashTable {
     public int search(String name) {
         int index = (int)calc_hash(name, TABLE_SIZE);
         int initialIndex= index;
-        if( table[index].name==name ){
-            System.out.println(table[index]);
-            return index;
-        }
-        else{
-            index++;
-            while(true){
-                if(index==initialIndex){
-                    System.out.println("No contact was found!");
-                    return -1; //if -1 is returned, then nothing is found
-                }
-                if (table[index].name==name) {
-                    System.out.println(table[index]);
-                    return index;
-                }
-                index= index==TABLE_SIZE-1 ? 0 : index + 1;
+
+        while(table[index]!=null){
+            if(table[index].name.equals(name)){
+                System.out.println(table[index]);
+                return index;
+            }
+            index= index==TABLE_SIZE-1 ? 0 : index+1; //circular indexing
+            if(index == initialIndex){
+                break;
             }
         }
+        System.out.println("No contact was found!");
+        return -1;
+
     }
 
     
@@ -146,7 +142,7 @@ public class ContactHashTable {
         phoneList.update("987-654-3210","Alice");
         phoneList.search("Alice");
         System.out.println("-------------------------------------\n");
-        phoneList.insert("Stafany", "321-543-0987");
+        phoneList.insert("Stefany", "321-543-0987");
         phoneList.display();
     }
 }
